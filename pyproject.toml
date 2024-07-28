@@ -1,0 +1,45 @@
+[project]
+name = "wud"
+version = "0.1.0"
+description = ""
+authors = [{ name = "James Turk", email = "dev@jpt.sh" }]
+dependencies = ["textual>=0.74.0", "typer>=0.12.3"]
+requires-python = ">=3.12"
+readme = "README.md"
+license = { text = "MIT" }
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[project.scripts]
+modo = "wud.app:cli"
+
+[tool.pdm]
+distribution = true
+
+[tool.pdm.scripts]
+test.cmd = "pdm run pytest  --cov=src/ --cov-report html"
+lint.composite = [
+  "pdm run ruff check src/ tests/",
+  "pdm run ruff format src/ tests/",
+]
+docs.cmd = "pdm run mkdocs serve"
+release.composite = [
+  "pdm version-bump",
+  "pdm run mkdocs gh-deploy",
+  "pdm publish",
+  "git commit -am 'release $version'",
+  "git tag $version",
+  "git push",
+  "git push tags",
+  "gh release create $version -F docs/changelog.md",
+]
+
+[tool.pdm.dev-dependencies]
+dev = [
+  "pytest>=8.3.2",
+  "pytest-cov>=5.0.0",
+  "mkdocs-material>=9.5.30",
+  "ruff>=0.5.5",
+]
