@@ -1,23 +1,13 @@
 import importlib
 from textual.app import App, ComposeResult
-from textual.reactive import reactive
 from textual.widgets import (
-    Static,
     Header,
     ListView,
     ListItem,
     Label,
-    MarkdownViewer,
     Markdown,
 )
 from .parse_mod import parse_module
-
-TEXT = """\
-Docking a widget removes it from the layout and fixes its position, aligned to either the top, right, bottom, or left edges of a container.
-
-Docked widgets will not scroll out of view, making them ideal for sticky headers, footers, and sidebars.
-
-"""
 
 
 class MemberListView(ListView):
@@ -62,7 +52,9 @@ class WudTui(App):
         super().__init__()
         _mod = importlib.import_module(modname)
         self.mod = parse_module(_mod)
-        self.mod_list = [self.mod] + self.mod.functions + self.mod.data
+        self.mod_list = (
+            [self.mod] + self.mod.functions + self.mod.classes + self.mod.data
+        )
 
     def compose(self) -> ComposeResult:
         yield Header()
@@ -76,7 +68,7 @@ class WudTui(App):
     def on_list_view_highlighted(self, _):
         lv = self.query_one("#sidebar", MemberListView)
         md = self.query_one("#docview", Markdown)
-        md.update(markdown=f"{self.mod_list[lv.index]}")
+        md.update(markdown=f"{self.mod_list[lv.index].as_markdown()}")
 
 
 if __name__ == "__main__":

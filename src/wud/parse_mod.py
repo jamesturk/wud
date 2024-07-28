@@ -12,6 +12,9 @@ class Func:
     def __str__(self):
         return f"{self.name}{self.signature}\n\t{self.desc}"
 
+    def as_markdown(self):
+        return f"### {self.name}\n\n```python\n{self.name}{self.signature}\n```\n\n{self.desc}"
+
     @property
     def icon(self):
         return "F"
@@ -25,6 +28,9 @@ class Class:
 
     def __str__(self):
         return f"{self.name}{self.signature}\n\t{self.desc}"
+
+    def as_markdown(self):
+        return f"### {self.name}\n\n{self.desc}"
 
     @property
     def icon(self):
@@ -41,6 +47,9 @@ class Datum:
     def __str__(self):
         return f"{self.name} = {self.value} ({self.type_name})\n\t{self.desc}"
 
+    def as_markdown(self):
+        return f"### {self.name}\n{self.value} ({self.type_name})\n\n{self.desc}"
+
     @property
     def icon(self):
         return "G"
@@ -53,6 +62,9 @@ class Mod:
     functions: list[Func] = field(default_factory=list)
     classes: list[Class] = field(default_factory=list)
     data: list[Datum] = field(default_factory=list)
+
+    def as_markdown(self):
+        return f"# {self.name}\n{self.desc}\n\n## Functions\n\n"
 
     @property
     def icon(self):
@@ -79,11 +91,13 @@ def parse_module(mod):
     info = Mod(mod.__name__, mod.__doc__)
 
     for name, member in inspect.getmembers(mod):
+        if name.startswith("_"):
+            continue
         if inspect.isclass(member):
             info.classes.append(parse_class(member))
         elif inspect.isroutine(member):
             info.functions.append(parse_function(member))
-        elif not name.startswith("__"):
+        else:
             info.data.append(Datum(name, member.__doc__, member, type(member).__name__))
 
     return info
