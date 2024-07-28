@@ -20,21 +20,6 @@ class MemberListView(ListView):
             yield ListItem(Label(f"{f.name:<16}{f.icon}"))
 
 
-def func2md(func):
-    return f"""## {func.name}{func.signature}
-    {func.desc}
-    """
-
-
-def mod2md(mod):
-    func_md = "\n\n".join(func2md(f) for f in mod.functions)
-    return f"""# {mod.name}
-    {mod.desc}
-
-    {func_md}
-    """
-
-
 # class DocView(MarkdownViewer):
 #
 #     def __init__(self, mod):
@@ -59,7 +44,7 @@ class WudTui(App):
     def compose(self) -> ComposeResult:
         yield Header()
         yield MemberListView(self.mod_list)
-        yield Markdown(mod2md(self.mod), id="docview")
+        yield Markdown(self.mod_list[0].as_markdown(), id="docview")
 
     def on_mount(self):
         self.title = "wud"
